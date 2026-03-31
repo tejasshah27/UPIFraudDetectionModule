@@ -24,6 +24,19 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Core orchestration service for the UPI Fraud Detection hybrid-scoring engine.
+ * 
+ * <p>This service controls the primary transaction flow:</p>
+ * <ol>
+ *   <li>Extracts a mathematical feature vector via FeatureExtractor</li>
+ *   <li>Obtains a continuous risk score (0.0 to 1.0) from the authoritative machine learning model (XGBoost ONNX)</li>
+ *   <li>Passes the transaction through a suite of business rules (Chain of Responsibility) to generate human-readable reason codes annotations</li>
+ *   <li>Persists the transaction and audit evaluation records to MongoDB</li>
+ * </ol>
+ * 
+ * <p>Note: Business rules evaluated here DO NOT calculate or override the numeric risk score (unless the ML model goes completely offline and triggers a fallback).</p>
+ */
 @Service
 public class TransactionService {
 

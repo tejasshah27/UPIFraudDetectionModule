@@ -6,6 +6,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
+/**
+ * Responsible for translating raw Transaction and UserProfile behavioral data 
+ * into a standardized numerical float array to be ingested by the ML Model.
+ * 
+ * <p><strong>CRITICAL:</strong> The size and order of the array returned by this class MUST 
+ * strictly match the input schema defined in the Python training pipeline (`ml/train.py`). 
+ * Modifying the array schema here requires retraining the ONNX model.</p>
+ */
 @Component
 public class FeatureExtractor {
 

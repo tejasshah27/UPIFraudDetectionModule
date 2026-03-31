@@ -9,6 +9,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+/**
+ * Thread-safe registry holding the currently active Machine Learning model in memory.
+ * 
+ * <p>Provides "Hot-Swapping" capabilities. An administrator can upload a newly trained 
+ * .onnx model safely without risking downtime or requiring a Spring Boot server restart.</p>
+ */
 @Component
 public class MLModelRegistry {
 

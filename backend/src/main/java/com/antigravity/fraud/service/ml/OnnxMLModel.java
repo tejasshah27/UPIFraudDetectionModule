@@ -10,6 +10,13 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
+/**
+ * Concrete implementation of the ML Model using Microsoft's ONNX Runtime.
+ * 
+ * <p>This class wraps the native C++ ONNX execution environment to run XGBoost (or any compatible
+ * scikit-learn/neural network) inferences at millisecond speeds. It manages the tensor memory 
+ * allocations strictly to prevent memory leaks during heavy fraud analysis traffic.</p>
+ */
 public class OnnxMLModel implements MLModel {
 
     private static final Logger log = LoggerFactory.getLogger(OnnxMLModel.class);
