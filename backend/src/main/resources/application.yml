@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: upi-fraud-detection
+  config:
+    import: classpath:rules.yml
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/upi_fraud_db
+
+fraud:
+  ml:
+    model-path: classpath:models/fraud_model.onnx
+    fallback-to-rules: true
+    decision-thresholds:
+      accept: 0.30
+      review: 0.70
+
+logging:
+  level:
+    com.antigravity.fraud: DEBUG

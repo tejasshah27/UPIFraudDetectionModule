@@ -1,0 +1,65 @@
+package com.antigravity.fraud;
+
+import com.antigravity.fraud.config.MongoConfig;
+import com.antigravity.fraud.repository.FraudEvaluationRepository;
+import com.antigravity.fraud.repository.TransactionRepository;
+import com.antigravity.fraud.repository.UserProfileRepository;
+import com.antigravity.fraud.service.ml.MLModelRegistry;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+
+/**
+ * Spring context smoke test.
+ *
+ * MongoDB and the ONNX model are unavailable in the test environment.
+ * - All MongoDB repositories are replaced with Mockito mocks via @MockBean.
+ * - MLModelRegistry is mocked so its @PostConstruct model-load is bypassed.
+ * - MongoConfig (which carries @EnableMongoAuditing) is excluded via the
+ *   inner @TestConfiguration's @ComponentScan filter, preventing the
+ *   auditing infrastructure from requiring a live MongoDB connection.
+ */
+@SpringBootTest(
+        properties = {
+                "spring.autoconfigure.exclude=" +
+                        "org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration," +
+                        "org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration," +
+                        "org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration"
+        }
+)
+class UPIFraudDetectionApplicationTests {
+
+    @MockBean
+    private TransactionRepository transactionRepository;
+
+    @MockBean
+    private UserProfileRepository userProfileRepository;
+
+    @MockBean
+    private FraudEvaluationRepository fraudEvaluationRepository;
+
+    @MockBean
+    private MLModelRegistry mlModelRegistry;
+
+    @Test
+    void contextLoads() {
+    }
+
+    /**
+     * Overrides component scanning for this test to exclude MongoConfig,
+     * preventing @EnableMongoAuditing from failing without a live MongoDB.
+     */
+    @TestConfiguration
+    @ComponentScan(
+            basePackages = "com.antigravity.fraud",
+            excludeFilters = @ComponentScan.Filter(
+                    type = FilterType.ASSIGNABLE_TYPE,
+                    classes = MongoConfig.class
+            )
+    )
+    static class TestConfig {
+    }
+}

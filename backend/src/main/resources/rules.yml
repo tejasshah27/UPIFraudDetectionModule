@@ -1,0 +1,19 @@
+fraud:
+  rules:
+    amount-threshold:
+      enabled: true
+      day-max: 50000
+      night-max: 30000
+      high-risk-mcc:
+        - "7995"
+        - "5944"
+    odd-hour:
+      enabled: true
+      risk-start-hour: 1
+      risk-end-hour: 5
+    velocity:
+      enabled: true
+      max-tx-in-window: 5
+      window-minutes: 10
+    location-anomaly:
+      enabled: true

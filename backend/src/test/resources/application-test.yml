@@ -1,0 +1,3 @@
+# Test profile configuration.
+# MongoConfig carries @Profile("!test") so it is excluded from the test context,
+# which prevents @EnableMongoAuditing from requiring live MongoDB infrastructure.

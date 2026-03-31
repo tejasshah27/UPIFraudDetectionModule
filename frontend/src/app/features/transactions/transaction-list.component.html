@@ -1,0 +1,116 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Transaction History</h1>
+    <p class="page-subtitle">Look up all transactions and fraud analysis results for a specific user</p>
+  </div>
+</div>
+
+<!-- Search Bar -->
+<div class="card" style="margin-bottom:1.5rem">
+  <div class="card-header-row mb-0">
+    <span class="card-title">User Lookup</span>
+  </div>
+  <div style="margin-top:1rem">
+    <div class="input-row">
+      <input id="input-user-id"
+             type="text"
+             class="form-control"
+             placeholder="Enter User ID (e.g. USER_123456)"
+             [(ngModel)]="userId"
+             (keyup.enter)="loadTransactions()">
+      <button id="btn-load-transactions" class="btn btn-primary" (click)="loadTransactions()" [disabled]="isLoading || !userId.trim()">
+        <span *ngIf="isLoading" class="spinner"></span>
+        <span *ngIf="!isLoading">🔎</span>
+        {{ isLoading ? 'Loading…' : 'Load' }}
+      </button>
+    </div>
+    <div class="fs-xs text-muted mt-2">
+      Tip: User IDs are generated as USER_xxxxxx during synthetic data generation.
+    </div>
+  </div>
+</div>
+
+<!-- Error -->
+<div *ngIf="errorMessage" class="alert alert-danger">
+  ⚠️ {{ errorMessage }}
+</div>
+
+<!-- Results Table -->
+<div *ngIf="transactions.length > 0" class="table-container">
+  <div class="table-toolbar">
+    <div>
+      <span class="table-toolbar-title">Results for </span>
+      <span class="font-mono" style="color:var(--accent-blue)">{{ userId }}</span>
+    </div>
+    <span class="table-count">{{ transactions.length }} records</span>
+  </div>
+  <table class="data-table" id="transaction-list-table">
+    <thead>
+      <tr>
+        <th>Tx ID</th>
+        <th>Risk Score</th>
+        <th>Decision</th>
+        <th>Engine</th>
+        <th>Reasons</th>
+        <th>Breakdown</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let tx of transactions; trackBy: trackById"
+          [class.row-selected]="selectedTx?.txId === tx.txId">
+        <td><span class="txid-chip">{{ tx.txId | slice:4:18 }}…</span></td>
+        <td>
+          <div class="risk-bar-wrap">
+            <div class="risk-bar-track">
+              <div class="risk-bar-fill"
+                   [style.width.%]="tx.riskScore * 100"
+                   [style.background]="getRiskColor(tx.riskScore)">
+              </div>
+            </div>
+            <span class="risk-pct" [style.color]="getRiskColor(tx.riskScore)">
+              {{ (tx.riskScore * 100).toFixed(1) }}%
+            </span>
+          </div>
+        </td>
+        <td><span class="badge" [ngClass]="getDecisionClass(tx.decision)">{{ tx.decision }}</span></td>
+        <td><span class="badge badge-engine">{{ tx.scoringEngine }}</span></td>
+        <td>
+          <div class="d-flex flex-wrap gap-1">
+            <ng-container *ngIf="tx.reasons && tx.reasons.length > 0; else noReasons">
+              <span *ngFor="let r of tx.reasons" class="badge badge-reason">{{ r }}</span>
+            </ng-container>
+            <ng-template #noReasons><span class="text-muted fs-xs">—</span></ng-template>
+          </div>
+        </td>
+        <td>
+          <button class="btn btn-secondary btn-sm"
+                  (click)="openModal(tx, $event)"
+                  [id]="'btn-breakdown-tx-' + tx.txId">
+            Details
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Empty State: searched but no results -->
+<div *ngIf="transactions.length === 0 && !isLoading && userId.trim()" class="empty-state">
+  <div class="empty-icon">🔍</div>
+  <div class="empty-title">No Transactions Found</div>
+  <div class="empty-sub">No history found for user <strong>{{ userId }}</strong>.</div>
+</div>
+
+<!-- Empty State: not searched yet -->
+<div *ngIf="transactions.length === 0 && !isLoading && !userId.trim()" class="empty-state">
+  <div class="empty-icon">📋</div>
+  <div class="empty-title">Enter a User ID</div>
+  <div class="empty-sub">Type a user ID above and click Load to fetch their transaction history.</div>
+</div>
+
+<!-- Rule Breakdown Modal -->
+<app-rule-breakdown-modal
+  *ngIf="selectedTx"
+  [transaction]="selectedTx"
+  (close)="closeModal()">
+</app-rule-breakdown-modal>

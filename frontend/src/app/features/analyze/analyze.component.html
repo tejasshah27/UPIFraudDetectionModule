@@ -1,0 +1,175 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Live Transaction Analyzer</h1>
+    <p class="page-subtitle">Craft a custom transaction and instantly score it with the fraud engine — no data is persisted</p>
+  </div>
+  <button class="btn btn-secondary btn-sm" (click)="resetForm()" id="btn-reset-form">Reset</button>
+</div>
+
+<!-- Input Form -->
+<div class="card" style="margin-bottom:1.5rem">
+  <div class="card-header-row">
+    <span class="card-title">Transaction Parameters</span>
+    <button id="btn-analyze" class="btn btn-primary btn-sm" (click)="analyze()" [disabled]="isLoading">
+      <span *ngIf="isLoading" class="spinner"></span>
+      <span *ngIf="!isLoading">🔍</span>
+      {{ isLoading ? 'Analyzing…' : 'Analyze' }}
+    </button>
+  </div>
+
+  <div class="analyze-form-grid">
+    <div class="form-group">
+      <label class="form-label" for="input-sender-id">Sender ID</label>
+      <input id="input-sender-id" type="text" class="form-control"
+             [(ngModel)]="form.senderId" placeholder="USER_001234">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="input-receiver-id">Receiver ID</label>
+      <input id="input-receiver-id" type="text" class="form-control"
+             [(ngModel)]="form.receiverId" placeholder="USER_056789">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="input-amount">Amount (INR)</label>
+      <input id="input-amount" type="number" class="form-control"
+             [(ngModel)]="form.amount" min="1" step="1000">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="select-tx-type">Transaction Type</label>
+      <select id="select-tx-type" class="form-control" [(ngModel)]="form.txType">
+        <option *ngFor="let t of txTypes" [value]="t">{{ t }}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="input-mcc">MCC Code</label>
+      <input id="input-mcc" type="text" class="form-control"
+             [(ngModel)]="form.mccCode" placeholder="e.g. 7995 (gambling)">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="input-ip">IP Address</label>
+      <input id="input-ip" type="text" class="form-control"
+             [(ngModel)]="form.ipAddress" placeholder="192.168.1.100">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="select-city">City</label>
+      <select id="select-city" class="form-control" [(ngModel)]="form.city">
+        <option *ngFor="let c of cities" [value]="c">{{ c }}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="input-currency">Currency</label>
+      <input id="input-currency" type="text" class="form-control"
+             [(ngModel)]="form.currency" placeholder="INR">
+    </div>
+  </div>
+
+  <!-- Quick Presets -->
+  <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)">
+    <div class="fs-xs text-muted mb-2" style="text-transform:uppercase;letter-spacing:.06em">Quick Presets</div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-secondary btn-sm" id="preset-high-risk"
+              (click)="form.amount=95000; form.mccCode='7995'; form.txType='P2P'">
+        🔴 High Risk (gambling, large)
+      </button>
+      <button class="btn btn-secondary btn-sm" id="preset-odd-hour"
+              (click)="form.amount=5000; form.mccCode='5411'; form.txType='BILL_PAY'">
+        🟡 Normal Bill Pay
+      </button>
+      <button class="btn btn-secondary btn-sm" id="preset-low-risk"
+              (click)="form.amount=250; form.mccCode='5812'; form.txType='P2P'">
+        🟢 Low Risk (small P2P)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Error -->
+<div *ngIf="errorMessage" class="alert alert-danger">⚠️ {{ errorMessage }}</div>
+
+<!-- Result Card -->
+<div *ngIf="result" class="card" id="analysis-result-card"
+     style="border-color:var(--border-bright);animation:fadeIn .3s ease">
+
+  <div class="card-header-row">
+    <span class="card-title">Analysis Result</span>
+    <span class="font-mono fs-xs" style="color:var(--text-muted)">{{ result.txId }}</span>
+  </div>
+
+  <!-- Big Score + Decision -->
+  <div style="display:grid;grid-template-columns:auto 1fr auto;gap:2rem;align-items:center;margin-bottom:1.5rem">
+    <div style="text-align:center">
+      <div class="fs-xs text-muted mb-1" style="text-transform:uppercase;letter-spacing:.06em">Risk Score</div>
+      <div style="font-size:3.5rem;font-weight:800;letter-spacing:-.05em;line-height:1"
+           [style.color]="getRiskColor(result.riskScore)">
+        {{ (result.riskScore * 100).toFixed(1) }}%
+      </div>
+    </div>
+
+    <div>
+      <!-- Full risk bar -->
+      <div class="risk-bar-track" style="height:12px;border-radius:6px">
+        <div class="risk-bar-fill"
+             style="height:100%;border-radius:6px"
+             [style.width.%]="result.riskScore * 100"
+             [style.background]="getRiskColor(result.riskScore)">
+        </div>
+      </div>
+      <div class="d-flex" style="justify-content:space-between;margin-top:4px">
+        <span class="fs-xs" style="color:var(--accent-green)">0% Accept</span>
+        <span class="fs-xs" style="color:var(--accent-orange)">30% Review</span>
+        <span class="fs-xs" style="color:var(--accent-red)">70% Reject</span>
+      </div>
+    </div>
+
+    <div style="text-align:center">
+      <div class="fs-xs text-muted mb-2" style="text-transform:uppercase;letter-spacing:.06em">Decision</div>
+      <span class="badge" [ngClass]="getDecisionClass(result.decision)"
+            style="font-size:1rem;padding:8px 20px;letter-spacing:.05em">
+        {{ result.decision }}
+      </span>
+      <div style="margin-top:.5rem">
+        <span class="badge badge-engine">{{ result.scoringEngine }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reason Tags -->
+  <div *ngIf="result.reasons && result.reasons.length > 0" style="margin-bottom:1.25rem">
+    <div class="breakdown-label">Triggered Reason Codes</div>
+    <div class="d-flex flex-wrap gap-2 mt-1">
+      <span *ngFor="let r of result.reasons"
+            class="badge badge-reason"
+            style="background:rgba(239,68,68,.1);color:#fca5a5;border-color:rgba(239,68,68,.25)">
+        ⚠ {{ r }}
+      </span>
+    </div>
+  </div>
+
+  <div *ngIf="result.reasons && result.reasons.length === 0"
+       class="alert alert-info" style="margin-bottom:1rem">
+    ✅ No fraud signals detected — all rules passed cleanly.
+  </div>
+
+  <!-- Rule Breakdown Grid -->
+  <div *ngIf="result.ruleBreakdown && result.ruleBreakdown.length > 0">
+    <div class="breakdown-label">Rule Evaluation Detail</div>
+    <div class="breakdown-grid mt-1">
+      <div *ngFor="let rb of result.ruleBreakdown"
+           class="breakdown-item"
+           [class.triggered]="rb.triggered">
+        <div class="d-flex align-items-center gap-2">
+          <span>{{ rb.triggered ? '🔴' : '🟢' }}</span>
+          <span class="breakdown-item-rule">{{ rb.rule }}</span>
+        </div>
+        <div class="breakdown-item-detail">{{ rb.detail }}</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Empty state before analysis -->
+<div *ngIf="!result && !isLoading && !errorMessage" class="empty-state">
+  <div class="empty-icon">🔬</div>
+  <div class="empty-title">Ready to Analyze</div>
+  <div class="empty-sub">Fill in the transaction parameters above and click Analyze to score the transaction without persisting it.</div>
+</div>
