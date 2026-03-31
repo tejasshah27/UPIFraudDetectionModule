@@ -14,17 +14,37 @@ public class RuleConfig {
     private VelocityProperties velocity = new VelocityProperties();
     private LocationAnomalyProperties locationAnomaly = new LocationAnomalyProperties();
 
-    public AmountThresholdProperties getAmountThreshold() { return amountThreshold; }
-    public void setAmountThreshold(AmountThresholdProperties amountThreshold) { this.amountThreshold = amountThreshold; }
+    public AmountThresholdProperties getAmountThreshold() {
+        return amountThreshold;
+    }
 
-    public OddHourProperties getOddHour() { return oddHour; }
-    public void setOddHour(OddHourProperties oddHour) { this.oddHour = oddHour; }
+    public void setAmountThreshold(AmountThresholdProperties amountThreshold) {
+        this.amountThreshold = amountThreshold;
+    }
 
-    public VelocityProperties getVelocity() { return velocity; }
-    public void setVelocity(VelocityProperties velocity) { this.velocity = velocity; }
+    public OddHourProperties getOddHour() {
+        return oddHour;
+    }
 
-    public LocationAnomalyProperties getLocationAnomaly() { return locationAnomaly; }
-    public void setLocationAnomaly(LocationAnomalyProperties locationAnomaly) { this.locationAnomaly = locationAnomaly; }
+    public void setOddHour(OddHourProperties oddHour) {
+        this.oddHour = oddHour;
+    }
+
+    public VelocityProperties getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(VelocityProperties velocity) {
+        this.velocity = velocity;
+    }
+
+    public LocationAnomalyProperties getLocationAnomaly() {
+        return locationAnomaly;
+    }
+
+    public void setLocationAnomaly(LocationAnomalyProperties locationAnomaly) {
+        this.locationAnomaly = locationAnomaly;
+    }
 
     // -------------------------------------------------------------------------
 
@@ -34,17 +54,37 @@ public class RuleConfig {
         private double nightMax = 30000;
         private List<String> highRiskMcc = List.of("7995", "5944");
 
-        public boolean isEnabled() { return enabled; }
-        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public boolean isEnabled() {
+            return enabled;
+        }
 
-        public double getDayMax() { return dayMax; }
-        public void setDayMax(double dayMax) { this.dayMax = dayMax; }
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
 
-        public double getNightMax() { return nightMax; }
-        public void setNightMax(double nightMax) { this.nightMax = nightMax; }
+        public double getDayMax() {
+            return dayMax;
+        }
 
-        public List<String> getHighRiskMcc() { return highRiskMcc; }
-        public void setHighRiskMcc(List<String> highRiskMcc) { this.highRiskMcc = highRiskMcc; }
+        public void setDayMax(double dayMax) {
+            this.dayMax = dayMax;
+        }
+
+        public double getNightMax() {
+            return nightMax;
+        }
+
+        public void setNightMax(double nightMax) {
+            this.nightMax = nightMax;
+        }
+
+        public List<String> getHighRiskMcc() {
+            return highRiskMcc;
+        }
+
+        public void setHighRiskMcc(List<String> highRiskMcc) {
+            this.highRiskMcc = highRiskMcc;
+        }
     }
 
     public static class OddHourProperties {
@@ -52,14 +92,29 @@ public class RuleConfig {
         private int riskStartHour = 1;
         private int riskEndHour = 5;
 
-        public boolean isEnabled() { return enabled; }
-        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public boolean isEnabled() {
+            return enabled;
+        }
 
-        public int getRiskStartHour() { return riskStartHour; }
-        public void setRiskStartHour(int riskStartHour) { this.riskStartHour = riskStartHour; }
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
 
-        public int getRiskEndHour() { return riskEndHour; }
-        public void setRiskEndHour(int riskEndHour) { this.riskEndHour = riskEndHour; }
+        public int getRiskStartHour() {
+            return riskStartHour;
+        }
+
+        public void setRiskStartHour(int riskStartHour) {
+            this.riskStartHour = riskStartHour;
+        }
+
+        public int getRiskEndHour() {
+            return riskEndHour;
+        }
+
+        public void setRiskEndHour(int riskEndHour) {
+            this.riskEndHour = riskEndHour;
+        }
     }
 
     public static class VelocityProperties {
@@ -67,20 +122,40 @@ public class RuleConfig {
         private int maxTxInWindow = 5;
         private int windowMinutes = 10;
 
-        public boolean isEnabled() { return enabled; }
-        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public boolean isEnabled() {
+            return enabled;
+        }
 
-        public int getMaxTxInWindow() { return maxTxInWindow; }
-        public void setMaxTxInWindow(int maxTxInWindow) { this.maxTxInWindow = maxTxInWindow; }
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
 
-        public int getWindowMinutes() { return windowMinutes; }
-        public void setWindowMinutes(int windowMinutes) { this.windowMinutes = windowMinutes; }
+        public int getMaxTxInWindow() {
+            return maxTxInWindow;
+        }
+
+        public void setMaxTxInWindow(int maxTxInWindow) {
+            this.maxTxInWindow = maxTxInWindow;
+        }
+
+        public int getWindowMinutes() {
+            return windowMinutes;
+        }
+
+        public void setWindowMinutes(int windowMinutes) {
+            this.windowMinutes = windowMinutes;
+        }
     }
 
     public static class LocationAnomalyProperties {
         private boolean enabled = true;
 
-        public boolean isEnabled() { return enabled; }
-        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
     }
 }
