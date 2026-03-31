@@ -21,6 +21,11 @@ export class TransactionService {
     return this.http.get<FraudAnalysisResponse>(`${this.baseUrl}/api/v1/transactions/${id}`);
   }
 
+  getAllTransactions(limit: number = 100): Observable<FraudAnalysisResponse[]> {
+    const params = new HttpParams().set('limit', limit.toString());
+    return this.http.get<FraudAnalysisResponse[]>(`${this.baseUrl}/api/v1/transactions`, { params });
+  }
+
   getUserTransactions(userId: string): Observable<FraudAnalysisResponse[]> {
     return this.http.get<FraudAnalysisResponse[]>(`${this.baseUrl}/api/v1/transactions/user/${userId}`);
   }

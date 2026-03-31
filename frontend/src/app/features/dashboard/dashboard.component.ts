@@ -21,7 +21,20 @@ export class DashboardComponent implements OnInit {
   errorMessage = '';
   selectedTx: FraudAnalysisResponse | null = null;
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.loadInitialData();
+  }
+
+  loadInitialData(): void {
+    this.txService.getAllTransactions(100).subscribe({
+      next: (data) => {
+        if (data && data.length > 0) {
+           this.transactions = data;
+        }
+      },
+      error: (err) => console.error('Failed to load initial transactions', err)
+    });
+  }
 
   get totalCount()  { return this.transactions.length; }
   get acceptCount() { return this.transactions.filter(t => t.decision === 'ACCEPT').length; }

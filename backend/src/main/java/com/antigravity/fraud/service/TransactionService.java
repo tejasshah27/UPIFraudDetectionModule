@@ -199,6 +199,25 @@ public class TransactionService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Return the most recent transactions globally.
+     */
+    public List<FraudAnalysisResponse> getAllTransactions(int limit) {
+        List<Transaction> transactions = txRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "timestamp"))
+                .stream().limit(limit).collect(Collectors.toList());
+        return transactions.stream()
+                .map(tx -> {
+                    Optional<FraudEvaluation> evalOpt = evalRepository.findByTxId(tx.getTxId());
+                    if (evalOpt.isPresent()) {
+                        return FraudAnalysisResponse.from(evalOpt.get());
+                    }
+                    FraudAnalysisResponse minimal = new FraudAnalysisResponse();
+                    minimal.setTxId(tx.getTxId());
+                    return minimal;
+                })
+                .collect(Collectors.toList());
+    }
+
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------

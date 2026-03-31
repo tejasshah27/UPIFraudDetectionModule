@@ -16,9 +16,16 @@ import java.util.Optional;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final org.springframework.data.mongodb.core.MongoTemplate mongoTemplate;
 
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService, org.springframework.data.mongodb.core.MongoTemplate mongoTemplate) {
         this.transactionService = transactionService;
+        this.mongoTemplate = mongoTemplate;
+    }
+
+    @GetMapping("/debug/dbname")
+    public ResponseEntity<String> getDbName() {
+        return ResponseEntity.ok(mongoTemplate.getDb().getName());
     }
 
     @PostMapping("/analyze")
@@ -43,6 +50,13 @@ public class TransactionController {
             return ResponseEntity.ok(response.get());
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<FraudAnalysisResponse>> getAllTransactions(
+            @RequestParam(defaultValue = "100") int limit) {
+        List<FraudAnalysisResponse> transactions = transactionService.getAllTransactions(limit);
+        return ResponseEntity.ok(transactions);
     }
 
     @GetMapping("/user/{userId}")
